@@ -1,52 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Gold USD/oz — Global Models dashboard</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <style>
-    :root{--bg:#0c1117;--card:#151c26;--line:#243044;--gold:#d4af37;--gold2:#f3d77a;--text:#e8eef7;--muted:#93a0b5;--up:#3dd68c;--down:#ff6b6b;--blue:#6ea8ff}
-    *{box-sizing:border-box}body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:radial-gradient(1200px 600px at 10% -10%,#2a2208 0%,var(--bg) 45%);color:var(--text)}
-    header{padding:28px 32px 12px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:end}h1{margin:0;font-size:1.55rem}.sub{color:var(--muted);font-size:.92rem;margin-top:6px}
-    .kpis{display:grid;grid-template-columns:repeat(5,minmax(140px,1fr));gap:12px;padding:0 32px 16px}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}.label{color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.08em}.value{font-size:1.35rem;margin-top:6px}.gold{color:var(--gold2)}
-    .row{display:grid;grid-template-columns:1.6fr .9fr;gap:12px;padding:0 32px 16px}.full{padding:0 32px 16px}canvas{max-height:390px}.controls{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}button,select{background:#0f1620;color:var(--text);border:1px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer}button.active,button:hover{border-color:var(--gold);color:var(--gold2)}
-    table{width:100%;border-collapse:collapse;font-size:.9rem}th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}th{color:var(--muted)}a{color:var(--blue)}.tabs{display:flex;gap:8px;padding:0 32px 8px}.panel{display:none;padding:0 0 32px}.panel.on{display:block}.note{color:var(--muted);font-size:.85rem;line-height:1.45}input[type=range]{width:min(420px,100%)}h2{font-size:1.1rem;margin:0 0 6px}@media(max-width:980px){.kpis,.row{grid-template-columns:1fr}}
-    .update-badge{display:inline-flex;align-items:center;gap:8px;background:#0f1620;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:.85rem;color:var(--muted)}
-    .dot{width:8px;height:8px;border-radius:50%;background:#3dd68c;box-shadow:0 0 8px #3dd68c}
-  </style>
-</head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Gold USD/oz dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0c1117;--card:#151c26;--line:#243044;--gold2:#f3d77a;--text:#e8eef7;--muted:#93a0b5;--gold:#d4af37}
+*{box-sizing:border-box}body{margin:0;font-family:Segoe UI,system-ui,sans-serif;background:#0c1117;color:var(--text)}
+header{padding:24px 28px 8px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:end}
+h1{margin:0;font-size:1.4rem}.sub{color:var(--muted);font-size:.9rem;margin-top:6px}
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:10px;padding:0 28px 14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.label{color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em}.value{font-size:1.25rem;margin-top:6px}.gold{color:var(--gold2)}
+.row{display:grid;grid-template-columns:1.5fr .9fr;gap:10px;padding:0 28px 16px}.full{padding:0 28px 16px}
+button,select{background:#0f1620;color:var(--text);border:1px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer}
+button.active,button:hover,#refreshBtn{border-color:var(--gold);color:var(--gold2)}
+#refreshBtn{font-weight:600}.tabs{display:flex;gap:8px;padding:0 28px 8px}
+.panel{display:none}.panel.on{display:block}table{width:100%;border-collapse:collapse;font-size:.88rem}th,td{padding:7px 5px;border-bottom:1px solid var(--line);text-align:left}th{color:var(--muted)}
+.note{color:var(--muted);font-size:.82rem;line-height:1.4}.update-badge{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:.82rem;color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%;background:#3dd68c}
+.status{min-height:1.2em}canvas{max-height:360px}@media(max-width:900px){.kpis,.row{grid-template-columns:1fr}}
+</style></head>
 <body>
 <header>
-  <div>
-    <h1>Gold global-models dashboard</h1>
-    <div class="sub">USD/oz · GCUSD · 6-year history + 30/90-day scenarios + GRAM-style monthly &amp; daily models</div>
-  </div>
-  <div style="display:flex;flex-direction:column;align-items:end;gap:6px">
-    <div class="sub">As-of 15 Sep 2026 · Last close <span class="gold">$4,316.90</span></div>
-    <div class="update-badge"><span class="dot"></span><span id="updateTime">Updating…</span></div>
-  </div>
-</header>
-<div class="kpis"><div class="card"><div class="label">Spot USD/oz</div><div class="value gold">4,316.90</div></div><div class="card"><div class="label">6-year change</div><div class="value gold" id="sixYearChange">—</div></div><div class="card"><div class="label">Selected forecast</div><div class="value" id="kpiFcst">—</div></div><div class="card"><div class="label">90-day 1σ range</div><div class="value" id="kpiBand">—</div></div><div class="card"><div class="label">Model</div><div class="value" id="kpiModel">—</div></div></div>
-<div class="tabs"><button class="active" data-tab="history">History</button><button data-tab="forecast">Forecast</button><button data-tab="models">Global Models</button><button data-tab="factors">Factors</button></div>
-<section id="history" class="panel on"><div class="full"><div class="card"><div class="label">Gold daily closing price — 16 Sep 2020 to 15 Sep 2026</div><div class="controls"><button class="range active" data-r="6y">6 years</button><button class="range" data-r="3y">3 years</button><button class="range" data-r="1y">1 year</button><button class="range" data-r="ytd">2026 YTD</button></div><canvas id="historyChart"></canvas><p class="note">Representative monthly anchors. Research dashboard, not investment advice. Data as of 15 Sep 2026 GCUSD close $4,316.90/oz.</p></div></div></section>
-<section id="forecast" class="panel"><div class="row"><div class="card"><div class="label">Price path and scenario fan</div><div class="controls"><button class="hz active" data-h="90">90 trading days</button><button class="hz" data-h="30">30 trading days</button><select id="scenario"><option value="naive">Naive (last price)</option><option value="drift" selected>Base drift</option><option value="stress">Stress (weaker USD / risk-on gold)</option><option value="calm">Calm (firmer USD / higher yields)</option></select></div><label class="note">Volatility slider (annualized %): <input id="vol" type="range" min="8" max="24" value="15"><span id="volLbl">15%</span></label><canvas id="fan"></canvas></div><div class="card"><div class="label">Current factors — 15 Sep 2026</div><canvas id="gauges"></canvas><table><tr><th>Factor</th><th>Now</th><th>Gold bias</th></tr><tr><td>USD index</td><td>99.33</td><td>Mild headwind</td></tr><tr><td>10y yield</td><td>5.00%</td><td>Headwind</td></tr><tr><td>VIX</td><td>17.65</td><td>Neutral</td></tr></table></div></div></section>
-<section id="models" class="panel"><div class="full"><div class="card"><h2>Global model estimates (USD/oz)</h2><table><tr><th>Model family</th><th>Frequency</th><th>30/90-day estimate</th></tr><tr><td>Naive / Random walk</td><td>Daily</td><td>4,317</td></tr><tr><td>Historical drift</td><td>Daily</td><td>4,382 (30d), 4,514 (90d)</td></tr><tr><td>Ridge / Elastic Net</td><td>Daily</td><td>Run gold_global_models.py</td></tr><tr><td>GRAM-style macro</td><td>Monthly</td><td>Run gold_global_models.py</td></tr></table><p class="note">World Gold Council GRAM: economic expansion, risk &amp; uncertainty, opportunity cost, momentum. Scenarios only until walk-forward MAE beats naive.</p></div></div></section>
-<section id="factors" class="panel"><div class="full"><div class="card"><h2>Data sources</h2><table><tr><th>Factor</th><th>Series</th></tr><tr><td>Gold USD/oz</td><td>GCUSD</td></tr><tr><td>Dollar</td><td>DX-Y.NYB</td></tr><tr><td>10y yield</td><td>^TNX</td></tr><tr><td>VIX</td><td>VIXCLS</td></tr><tr><td>GPR / wars</td><td>matteoiacoviello.com/gpr.htm</td></tr></table></div></div></section>
+<div><h1>Gold global-models dashboard</h1><div class="sub">USD/oz · live refresh · 30/90-day scenarios</div></div>
+<div style="text-align:right">
+<button id="refreshBtn" type="button">Refresh gold price</button>
+<div class="update-badge" style="margin-top:8px"><span class="dot"></span><span id="updateTime">…</span></div>
+<div class="sub status" id="priceStatus">Spot not yet refreshed</div>
+</div></header>
+<div class="kpis">
+<div class="card"><div class="label">Spot USD/oz</div><div class="value gold" id="kpiSpot">4,316.90</div></div>
+<div class="card"><div class="label">6-year change</div><div class="value gold" id="sixYearChange">—</div></div>
+<div class="card"><div class="label">Selected forecast</div><div class="value" id="kpiFcst">—</div></div>
+<div class="card"><div class="label">1σ range</div><div class="value" id="kpiBand">—</div></div>
+<div class="card"><div class="label">Model</div><div class="value" id="kpiModel">—</div></div>
+</div>
+<div class="tabs">
+<button class="active" data-tab="history">History</button>
+<button data-tab="forecast">Forecast</button>
+<button data-tab="models">Global Models</button>
+<button data-tab="factors">Factors</button>
+</div>
+<section id="history" class="panel on"><div class="full"><div class="card">
+<div class="label">History + latest live close</div>
+<div class="controls" style="display:flex;gap:8px;margin:10px 0"><button class="range active" data-r="6y">6 years</button><button class="range" data-r="3y">3 years</button><button class="range" data-r="1y">1 year</button><button class="range" data-r="ytd">2026 YTD</button></div>
+<canvas id="historyChart"></canvas>
+<p class="note">Refresh pulls public XAU/USD (no API key). Estimates rebuild from the new spot. Research only, not a trade.</p>
+</div></div></section>
+<section id="forecast" class="panel"><div class="row"><div class="card">
+<div class="controls" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+<button class="hz active" data-h="90">90 days</button><button class="hz" data-h="30">30 days</button>
+<select id="scenario"><option value="naive">Naive</option><option value="drift" selected>Base drift</option><option value="stress">Stress</option><option value="calm">Calm</option></select>
+</div>
+<label class="note">Vol % <input id="vol" type="range" min="8" max="24" value="15"> <span id="volLbl">15%</span></label>
+<canvas id="fan"></canvas></div>
+<div class="card"><canvas id="gauges"></canvas>
+<table><tr><th>Factor</th><th>Now</th></tr><tr><td>USD index</td><td>99.33</td></tr><tr><td>10y yield</td><td>5.00%</td></tr><tr><td>VIX</td><td>17.65</td></tr></table></div></div></section>
+<section id="models" class="panel"><div class="full"><div class="card">
+<h2 style="margin:0 0 8px;font-size:1.05rem">Estimates from current spot</h2>
+<table>
+<tr><th>Model</th><th>30d</th><th>90d</th></tr>
+<tr><td>Naive</td><td id="mNaive30">—</td><td id="mNaive90">—</td></tr>
+<tr><td>Drift</td><td id="mDrift30">—</td><td id="mDrift90">—</td></tr>
+<tr><td>Stress (+0.7σ)</td><td id="mStress30">—</td><td id="mStress90">—</td></tr>
+<tr><td>Calm (−0.7σ)</td><td id="mCalm30">—</td><td id="mCalm90">—</td></tr>
+</table>
+<p class="note">Drift uses 2016–2026 mean log return (~0.050%/session). GRAM/Ridge still need the Python script for trained MAE.</p>
+</div></div></section>
+<section id="factors" class="panel"><div class="full"><div class="card">
+<p class="note">Live quote: <a href="https://xaus.com/api/" style="color:#6ea8ff">xaus.com/api/v1/spot</a> (CORS, no key). Fallback: api.gold-api.com. Do not put private API keys in this public page.</p>
+</div></div></section>
 <script>
-const SPOT=4316.90, MU=.000496;
-const hist=[['2020-09-16',1897],['2021-01-04',1849],['2021-07-01',1817],['2022-01-03',1796],['2022-07-01',1767],['2023-01-03',1928],['2023-07-03',1966],['2024-01-02',2039],['2024-07-01',2473],['2025-01-02',2798],['2025-07-01',3357],['2026-01-02',4140],['2026-09-15',4316.90]].map(d=>({date:new Date(d[0]+'T00:00:00'),close:d[1]}));
-const fmt=n=>'$'+Number(n).toLocaleString('en-US',{maximumFractionDigits:0});
-const dateLabel=d=>d.toLocaleDateString('en-GB',{month:'short',year:'numeric'});
-const hc=new Chart(document.getElementById('historyChart'),{type:'line',data:{labels:[],datasets:[{label:'GCUSD close',data:[],borderColor:'#f3d77a',backgroundColor:'rgba(212,175,55,.13)',fill:true,tension:.24,pointRadius:0,borderWidth:2.5}]},options:{responsive:true,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:'#c9d4e5'}},tooltip:{callbacks:{label:x=>'Gold: '+fmt(x.parsed.y)}}},scales:{x:{ticks:{color:'#93a0b5',maxTicksLimit:10},grid:{color:'#243044'}},y:{ticks:{color:'#93a0b5',callback:v=>'$'+v.toLocaleString()},grid:{color:'#243044'}}}}});
-function selectHistory(r){const last=hist[hist.length-1].date;let cutoff=new Date('2020-09-01');if(r==='3y')cutoff=new Date(last.getFullYear()-3,last.getMonth(),1);if(r==='1y')cutoff=new Date(last.getFullYear()-1,last.getMonth(),1);if(r==='ytd')cutoff=new Date('2026-01-01');const data=hist.filter(x=>x.date>=cutoff);hc.data.labels=data.map(x=>dateLabel(x.date));hc.data.datasets[0].data=data.map(x=>x.close);hc.update();const first=data[0];const change=(SPOT/first.close-1)*100;document.getElementById('sixYearChange').textContent=(change>=0?'+':'')+change.toFixed(1)+'%';}
-document.querySelectorAll('.range').forEach(b=>b.onclick=()=>{document.querySelectorAll('.range').forEach(x=>x.classList.remove('active'));b.classList.add('active');selectHistory(b.dataset.r)});
-const labelsFor=n=>{const a=['15 Sep'];for(let i=1;i<=n;i++)a.push('Day '+i);return a};function path(n,k,v){let a=[SPOT],s=v/100*Math.sqrt(n/252);for(let i=1;i<=n;i++)a.push(SPOT*Math.exp(MU*i)*Math.exp(k*s*i/n));return a};let horizon=90,vol=15;const fan=new Chart(document.getElementById('fan'),{type:'line',data:{labels:[],datasets:[]},options:{responsive:true,interaction:{mode:'index',intersect:false},plugins:{legend:{labels:{color:'#c9d4e5'}},tooltip:{callbacks:{label:x=>x.dataset.label+': '+fmt(x.parsed.y)}}},scales:{x:{ticks:{color:'#93a0b5',maxTicksLimit:8},grid:{color:'#243044'}},y:{ticks:{color:'#93a0b5',callback:v=>'$'+v.toLocaleString()},grid:{color:'#243044'}}}}});
-new Chart(document.getElementById('gauges'),{type:'radar',data:{labels:['USD weakness','Low yields','Risk (VIX)','Gold momentum'],datasets:[{data:[42,28,48,40],borderColor:'#d4af37',backgroundColor:'rgba(212,175,55,.25)'}]},options:{plugins:{legend:{display:false}},scales:{r:{min:0,max:100,ticks:{display:false},grid:{color:'#243044'},pointLabels:{color:'#c9d4e5'}}}}});
-function renderForecast(){let s=document.getElementById('scenario').value,k=s==='stress'?.7:s==='calm'?-0.7:0,mid=s==='naive'?Array(horizon+1).fill(SPOT):path(horizon,k,vol),lo=path(horizon,-1,vol),hi=path(horizon,1,vol);document.getElementById('kpiFcst').textContent=fmt(mid.at(-1));document.getElementById('kpiBand').textContent=fmt(lo.at(-1))+' – '+fmt(hi.at(-1));document.getElementById('volLbl').textContent=vol+'%';document.getElementById('kpiModel').textContent=s;fan.data.labels=labelsFor(horizon);fan.data.datasets=[{label:'1σ high',data:hi,borderColor:'#ff6b6b',borderDash:[6,4],pointRadius:0,tension:.25},{label:'Selected',data:mid,borderColor:'#f3d77a',borderWidth:3,pointRadius:0,tension:.25},{label:'Naive',data:Array(horizon+1).fill(SPOT),borderColor:'#6ea8ff',borderDash:[4,4],pointRadius:0},{label:'1σ low',data:lo,borderColor:'#3dd68c',borderDash:[6,4],pointRadius:0,tension:.25}];fan.update()}
-document.querySelectorAll('.hz').forEach(b=>b.onclick=()=>{document.querySelectorAll('.hz').forEach(x=>x.classList.remove('active'));b.classList.add('active');horizon=+b.dataset.h;renderForecast()});document.getElementById('scenario').onchange=renderForecast;document.getElementById('vol').oninput=e=>{vol=+e.target.value;renderForecast()};document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));document.getElementById(b.dataset.tab).classList.add('on')});
-function updateTimestamp(){const now=new Date();const tz=Intl.DateTimeFormat().resolvedOptions().timeZone;const s=now.toLocaleString('en-GB',{timeZone:tz,year:'numeric',month:'short',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});document.getElementById('updateTime').textContent='Last updated: '+s+' ('+tz+')';}
-updateTimestamp();setInterval(updateTimestamp,1000);selectHistory('6y');renderForecast();
-</script>
-</body>
-</html>
+let SPOT=4316.90; const MU=0.000496; let horizon=90, vol=15, range='6y';
+const histBase=[['2020-09-16',1897],['2021-01-04',1849],['2021-07-01',1817],['2022-01-03',1796],['2022-07-01',1767],['2023-01-03',1928],['2023-07-03',1966],['2024-01-02',2039],['2024-07-01',2473],['2025-01-02',2798],['2025-07-01',3357],['2026-01-02',4140]];
+const fmt=n=>'$'+Number(n).toLocaleString('en-US',{maximumFractionDigits:2});
+const fmt0=n=>'$'+Number(n).toLocaleString('en-US',{maximumFractionDigits:0});
+function histNow(){return histBase.concat([[new Date().toISOString().slice(0,10),SPOT]]).map(d=>({date:new Date(d[0]+'T00:00:00'),close:d[1]}));}
+function pathEnd(n,k){const s=(vol/100)*Math.sqrt(n/252); return SPOT*Math.exp(MU*n)*Math.exp(k*s);}
+function path(n,k){const a=[SPOT],s=(vol/100)*Math.sqrt(n/252); for(let i=1;i<=n;i++) a.push(SPOT*Math.exp(MU*i)*Math.exp(k*s*i/n)); return a;}
+const hc=new Chart(document.getElementById('historyChart'),{type:'line',data:{labels:[],datasets:[{label:'Gold USD/oz',data:[],borderColor:'#f3d77a',backgroundColor:'rgba(212,175,55,.13)',fill:true,tension:.24,pointRadius:0,borderWidth:2}]},options:{responsive:true,plugins:{legend:{labels:{color:'#c9d4e5'}}},scales:{x:{ticks:{color:'#93a0b5',maxTicksLimit:8},grid:{color:'#243044'}},y:{ticks:{color:'#93a0b5',callback:v=>'$'+v},grid:{color:'#243044'}}}}});
+const fan=new Chart(document.getElementById('fan'),{type:'line',data:{labels:[],datasets:[]},options:{responsive:true,plugins:{legend:{labels:{color:'#c9d4e5'}}},scales:{x:{ticks:{color:'#93a0b5',maxTicksLimit:8},grid:{color:'#243044'}},y:{ticks:{color:'#93a0b5',callback:v=>'$'+v},grid:{color:'#243044'}}}}});
+new Chart(document.getElementById('gauges'),{type:'radar',data:{labels:['USD weakness','Low yields','VIX','Momentum'],datasets:[{data:[42,28,48,40],borderColor:'#d4af37',backgroundColor:'rgba(212,175,55,.25)'}]},options:{plugins:{legend:{display:false}},scales:{r:{min:0,max:100,ticks:{display:false},grid:{color:'#243044'},pointLabels:{color:'#c9d4e5'}}}}});
+function selectHistory(){const last=new Date(); let cutoff=new Date('2020-09-01'); if(range==='3y') cutoff=new Date(last.getFullYear()-3,last.getMonth(),1); if(range==='1y') cutoff=new Date(last.getFullYear()-1,last.getMonth(),1); if(range==='ytd') cutoff=new Date('2026-01-01');
+ const data=histNow().filter(x=>x.date>=cutoff); hc.data.labels=data.map(x=>x.date.toLocaleDateString('en-GB',{month:'short',year:'numeric'})); hc.data.datasets[0].data=data.map(x=>x.close); hc.update();
+ const first=data[0]; document.getElementById('sixYearChange').textContent=((SPOT/first.close-1)*100).toFixed(1)+'%';}
+function renderModels(){const set=(id,v)=>document.getElementById(id).textContent=fmt0(v);
+ set('mNaive30',SPOT); set('mNaive90',SPOT);
+ set('mDrift30',pathEnd(30,0)); set('mDrift90',pathEnd(90,0));
+ set('mStress30',pathEnd(30,.7)); set('mStress90',pathEnd(90,.7));
+ set('mCalm30',pathEnd(30,-.7)); set('mCalm90',pathEnd(90,-.7));}
+function renderForecast(){const s=document.getElementById('scenario').value; const k=s==='stress'?.7:s==='calm'?-0.7:0;
+ const mid=s==='naive'?Array(horizon+1).fill(SPOT):path(horizon,k); const lo=path(horizon,-1), hi=path(horizon,1);
+ document.getElementById('kpiSpot').textContent=fmt(SPOT).slice(1);
+ document.getElementById('kpiFcst').textContent=fmt0(mid.at(-1));
+ document.getElementById('kpiBand').textContent=fmt0(lo.at(-1))+' – '+fmt0(hi.at(-1));
+ document.getElementById('volLbl').textContent=vol+'%'; document.getElementById('kpiModel').textContent=s;
+ const labels=['Now',...Array.from({length:horizon},(_,i)=>'D'+(i+1))];
+ fan.data.labels=labels; fan.data.datasets=[
+ {label:'1σ high',data:hi,borderColor:'#ff6b6b',borderDash:[6,4],pointRadius:0,tension:.25},
+ {label:'Selected',data:mid,borderColor:'#f3d77a',borderWidth:3,pointRadius:0,tension:.25},
+ {label:'Naive',data:Array(horizon+1).fill(SPOT),borderColor:'#6ea8ff',borderDash:[4,4],pointRadius:0},
+ {label:'1σ low',data:lo,borderColor:'#3dd68c',borderDash:[6,4],pointRadius:0,tension:.25}]; fan.update(); renderModels(); selectHistory();}
+function clock(){const tz=Intl.DateTimeFormat().resolvedOptions().timeZone; document.getElementById('updateTime').textContent=new Date().toLocaleString('en-GB',{timeZone:tz,year:'numeric',month:'short',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})+' ('+tz+')';}
+async function refreshPrice(){const btn=document.getElementById('refreshBtn'); const st=document.getElementById('priceStatus'); btn.disabled=true; st.textContent='Fetching live XAU/USD…';
+ try{
+ let price=null, source='';
+ try{const r=await fetch('https://xaus.com/api/v1/spot'); const j=await r.json(); price=j.xau?.spot_usd_oz||j.xau?.price||j.price; source='xaus.com';}catch(e){}
+ if(!price){const r=await fetch('https://api.gold-api.com/price/XAU'); const j=await r.json(); price=j.price; source='gold-api.com';}
+ if(!price||!isFinite(price)) throw new Error('No price');
+ SPOT=Number(price); renderForecast();
+ st.textContent='Gold updated: '+fmt(SPOT)+'/oz · source '+source+' · '+new Date().toLocaleString();
+ }catch(e){st.textContent='Refresh failed (CORS/network). Spot still '+fmt(SPOT)+'. Open the GitHub Pages URL, not the raw file.';}
+ btn.disabled=false;}
+document.getElementById('refreshBtn').onclick=refreshPrice;
+document.querySelectorAll('.range').forEach(b=>b.onclick=()=>{document.querySelectorAll('.range').forEach(x=>x.classList.remove('active')); b.classList.add('active'); range=b.dataset.r; selectHistory();});
+document.querySelectorAll('.hz').forEach(b=>b.onclick=()=>{document.querySelectorAll('.hz').forEach(x=>x.classList.remove('active')); b.classList.add('active'); horizon=+b.dataset.h; renderForecast();});
+document.getElementById('scenario').onchange=renderForecast;
+document.getElementById('vol').oninput=e=>{vol=+e.target.value; renderForecast();};
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on')); document.getElementById(b.dataset.tab).classList.add('on');});
+clock(); setInterval(clock,1000); renderForecast();
+</script></body></html>
